@@ -1,0 +1,7 @@
+{
+    "user": "xiaoyiou",
+    "glst": ["ATXG", "AT1G02700", "AT1G03070", "AT1G03190","AT1G04980","AT1G05850"],
+    "path": "../exp1.p",
+    "mlst": ["H3K4me2", "H3K4me3"],
+    "token": "1ec91668ca12f6dd6952b1285d00bd33"
+}
