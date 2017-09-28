@@ -86,7 +86,10 @@ class Experiment(object):
                                    index = self.genes,
                                    columns = self.names
                                    )
+        print self.raw
         for mod in self.raw:
+            print "debugging!!!", mod
+            print self.raw[mod].values.mean()
             x = pois(self.raw[mod].values.mean())
             thresh = x.isf(10**(-power))
             self.binary.ix[(self.raw[mod] >= thresh).any(axis=1), [mod]] = 1

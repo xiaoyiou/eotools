@@ -11,7 +11,7 @@ from ..core import rawdata
 
 app = Flask(__name__)
 
-
+obj_cache = misc.obj_cache
 # some helper functions
 def get_field(x, y, req): return req[x] if x in req else y
 
@@ -21,7 +21,7 @@ def get_fields(xs, ys, req):
     return [get_field(x, y, req) for x, y in zip(xs, ys)]
 
 
-obj_cache = collections.defaultdict(dict)
+
 @app.route('/')
 def index():
     return "Hello, World!"
@@ -33,7 +33,6 @@ def not_found(error):
 
 @app.route('/api/cexp', methods=['POST'])
 def create_exp():
-
     if app.debug:
         print request.json
     # required fields in request
@@ -133,16 +132,18 @@ def get_pgenes():
     if app.debug:
         print request.json
     req = json.loads(request.json)
-    fields = ['user', 'token', 'pattern']
+    fields = ['user', 'token', 'pattern', 'label']
     if not req or any([not x in req for x in fields]):
         abort(400)
-    defualts = [None] * 3
-    user, token, pattern = get_fields(fields, defualts, req)
+    defualts = [None] * 4
+    user, token, pattern, label = get_fields(fields, defualts, req)
     if user not in obj_cache or token not in obj_cache[user]:
         abort(400)
-    pattern = frozenset(map(int, get_field('pattern', None, request)))
+    pattern = frozenset(map(int, get_field('pattern', None, req)))
     aobj = obj_cache[user][token]
-    lst = aobj.pgMap[aobj.pgMap[pattern] == 1].index.tolist()
+    filt = set(aobj.labels[aobj.labels[label] == 1].index.tolist())
+    lst = list(filt.intersection(aobj.pgMap[aobj.pgMap[pattern] == 1].index.tolist()))
+    
     return make_response(json.dumps({"genes": lst}, ensure_ascii=False, indent=4), 200)
 
 
@@ -155,9 +156,10 @@ def clear_cache():
     fields = ['user']
     if not req or any([not x in req for x in fields]):
         abort(400)
-    global obj_cache
     user = req['user']
+    global obj_cache
     if user in obj_cache:
         del obj_cache[user]
     misc.clear_cache(user)
+    return make_response(jsonify({'result': 'completed'}), 200)
     

@@ -6,7 +6,7 @@ import collections
 import random
 
 cache = collections.defaultdict(dict)
-
+obj_cache = collections.defaultdict(dict)
 def get_data(user, token, path):
     global cache
     if user not in cache or token not in cache[user] or not token:
